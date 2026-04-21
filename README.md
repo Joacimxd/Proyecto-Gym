@@ -1,6 +1,6 @@
-# 🏋️ GymFlow — Intelligent Gym Monitoring & Scheduling System
+# GymFlow — Intelligent Gym Monitoring & Scheduling System
 
-A **multi-agent system** that uses real-time computer vision (YOLOv11) to monitor gym machine usage, automatically track session durations, and provide users with an optimized workout schedule — all connected through a socket-based architecture.
+A **multi agent system** that uses real-time computer vision (YOLOv11) to monitor gym machine usage, automatically track session durations, and provide users with an optimized workout schedule — all connected through a socket-based architecture.
 
 <!-- Add a hero banner or project logo here -->
 <!-- ![Project Banner](assets/banner.png) -->
@@ -45,40 +45,15 @@ GymFlow is a distributed system designed for a **Multiagent Systems** course. It
 
 The system is composed of **four independent agents** communicating over TCP sockets:
 
-```
-┌─────────────────┐     TCP :6060      ┌──────────────────────┐
-│  Camera Client  │ ──────────────────▶ │   Camera Server      │
-│  (camera_client)│   JPEG frames       │   (camera_server)    │
-│  × N instances  │                     │   YOLO inference     │
-└─────────────────┘                     │   Usage tracking     │
-                                        │   DB update          │
-                                        └──────────┬───────────┘
-                                                   │
-                                                   ▼
-                                        ┌──────────────────────┐
-                                        │      gym.db          │
-                                        │  (SQLite database)   │
-                                        └──────────┬───────────┘
-                                                   │
-                    ┌──────────────────────────────────────────────────┐
-                    │                                                  │
-         ┌──────────▼───────────┐                      ┌──────────────▼──────────┐
-         │   Admin Server       │                      │   Client App            │
-         │   (server.py)        │◀─── TCP :5050 ──────▶│   (client.py)           │
-         │   NiceGUI :8082      │   schedule request    │   NiceGUI :8081         │
-         │   Machine CRUD       │                      │   User workout builder  │
-         │   Live logs          │                      │                         │
-         └──────────────────────┘                      └─────────────────────────┘
-```
 
-<!-- Screenshot: Architecture diagram or whiteboard sketch -->
-<!-- ![Architecture Diagram](assets/architecture.png) -->
+
+![Architecture Diagram](Media/Camera Client.jpg)
 
 ---
 
 ## Features
 
-### 🎥 Real-Time Machine Detection
+### Real-Time Machine Detection
 - YOLOv11 model fine-tuned to detect **machine-used** vs **machine-unused** states
 - Multi-camera grid view with live bounding box annotations
 - Per-machine status badges (IN USE / IDLE) with elapsed time
@@ -86,12 +61,12 @@ The system is composed of **four independent agents** communicating over TCP soc
 <!-- Screenshot: Camera server grid view with detections -->
 <!-- ![YOLO Detection Grid](assets/detection_grid.png) -->
 
-### ⏱ Smart Session Tracking
+### Smart Session Tracking
 - **Debounce logic** (3s) absorbs brief YOLO misses to avoid false session endings
 - **Minimum session filter** (10s) discards detection flickers
 - **Exponential moving average** smoothly adapts `average_time` in the database based on real observed usage
 
-### 🖥 Admin Dashboard
+### Admin Dashboard
 - Dark-themed **NiceGUI** web dashboard on port `8082`
 - Full CRUD management for gym machines (add, edit, delete)
 - Real-time stats: active connections, schedules generated, uptime
@@ -100,7 +75,7 @@ The system is composed of **four independent agents** communicating over TCP soc
 <!-- Screenshot: Admin dashboard -->
 <!-- ![Admin Dashboard](assets/admin_dashboard.png) -->
 
-### 📱 Client Workout Builder
+### Client Workout Builder
 - Premium dark-themed web app on port `8081`
 - Browse available machines with avg time and slot info
 - Select machines and generate an optimized schedule
@@ -112,7 +87,7 @@ The system is composed of **four independent agents** communicating over TCP soc
 <!-- Screenshot: Client app — generated schedule -->
 <!-- ![Client App - Schedule](assets/client_schedule.png) -->
 
-### 📡 Camera Client
+### Camera Client
 - Streams webcam or pre-recorded video to the camera server
 - Configurable JPEG quality, FPS cap, rotation, and **downscale before encode** for performance
 - Sends a machine name header so the server knows which machine each feed represents
@@ -196,7 +171,7 @@ cd Proyecto-Gym
 
 ## Usage
 
-The system requires **three servers running simultaneously** plus one or more camera clients.
+The system requires **one or more servers running simultaneously** plus one or more camera clients.
 
 ### 1. Start the Admin Server
 
@@ -325,14 +300,14 @@ Extracted frames were then labeled using [Roboflow](https://roboflow.com/) or [C
   You can use GIFs, screenshots, or link to a YouTube video.
 -->
 
-### 🎬 Full System Demo
+### Full System Demo
 
 <!-- Video: Full demo showing all components working together -->
 <!-- ![Full Demo](assets/demo_full.gif) -->
 
 > 📹 *Add a video/GIF here showing the full system running: camera clients streaming → YOLO detections appearing → user generating a schedule.*
 
-### 📸 Screenshots
+### Screenshots
 
 <details>
 <summary><b>Click to expand screenshots</b></summary>
