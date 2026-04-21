@@ -1,18 +1,3 @@
-"""
-camera_server.py — Multi-Camera YOLO Detection Server with Usage Tracking
-
-Accepts TCP connections from multiple camera_client instances.
-Each client identifies the gym machine it is filming.
-Receives video frames, runs YOLO inference (machine-used only),
-tracks usage time with debounce to handle detection errors,
-and updates average_time in gym.db.
-
-Usage:
-    python camera_server.py
-
-Press Q or ESC to quit.
-"""
-
 import socket
 import struct
 import json
