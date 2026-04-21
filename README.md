@@ -46,9 +46,8 @@ GymFlow is a distributed system designed for a **Multiagent Systems** course. It
 The system is composed of **four independent agents** communicating over TCP sockets:
 
 
-![Architecture Diagram](./Media/Camera Client.jpg)
+![Architecture Diagram](assets/Camera Client.jpg)
 
----
 
 ## Features
 
