@@ -1,19 +1,3 @@
-"""
-extract_frames.py — Extract frames from a video at a fixed interval.
-
-Saves frames as JPEG images into a folder named after the video file.
-
-Usage:
-    python Dataset/extract_frames.py --video video1.mov video2.mov video3.mov --interval 2
-
-Options:
-    --video      One or more video file paths (REQUIRED)
-    --interval   Extract 1 frame every N seconds. Default: 1
-    --output     Output directory. Default: same folder as the video
-    --quality    JPEG quality 1-100. Default: 95
-    --rotate     Rotate frames: 0, 90, 180, 270. Default: 0
-"""
-
 import os
 import argparse
 import cv2
@@ -30,7 +14,6 @@ def parse_args():
 
 
 def process_video(video_path, interval, output_base, quality, rotation):
-    """Extract frames from a single video."""
     video_path = os.path.abspath(video_path)
     if not os.path.isfile(video_path):
         print(f"[ERROR] Video not found: {video_path}")
