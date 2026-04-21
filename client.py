@@ -1,10 +1,3 @@
-"""
-client.py — Gym Routine Schedule Client
-
-• Beautiful NiceGUI web interface on port 8081
-• Communicates with the Gym Server via TCP sockets (port 5050)
-"""
-
 import socket
 import json
 
@@ -18,7 +11,6 @@ SERVER_PORT = 5050
 
 
 def _socket_request(payload: dict) -> dict:
-    """Send a JSON payload to the server and return the parsed response."""
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(5)
     try:
@@ -31,7 +23,6 @@ def _socket_request(payload: dict) -> dict:
 
 
 def fetch_machines() -> list:
-    """Retrieve machine list from the server."""
     try:
         resp = _socket_request({"action": "get_machines"})
         if resp.get("status") == "success":
@@ -42,13 +33,9 @@ def fetch_machines() -> list:
 
 
 def request_schedule(user_name: str, routine: list) -> dict:
-    """Send a routine request and return the schedule response."""
     return _socket_request({"user": user_name, "routine": routine})
 
 
-# ──────────────────────────────────────────────────────────────────────
-#   Custom CSS
-# ──────────────────────────────────────────────────────────────────────
 CUSTOM_CSS = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
@@ -233,7 +220,6 @@ body, .q-page, .nicegui-content {
 </style>
 """
 
-# Machine icons mapping
 MACHINE_ICONS = {
     "Squat Machine": "🦵",
     "Pendulum Squat Machine": "🏋️",
@@ -253,9 +239,6 @@ MACHINE_ICONS_MATERIAL = {
 }
 
 
-# ──────────────────────────────────────────────────────────────────────
-#   NiceGUI Client UI
-# ──────────────────────────────────────────────────────────────────────
 @ui.page("/")
 def client_page():
     ui.add_head_html(CUSTOM_CSS)
@@ -266,10 +249,8 @@ def client_page():
     selected_machines: list[str] = []
     machine_cards: dict = {}
 
-    # ── Container ──
     with ui.column().classes("w-full max-w-5xl mx-auto px-4 py-6 gap-6"):
 
-        # ── Top bar ──
         with ui.row().classes("w-full items-center justify-between"):
             with ui.row().classes("items-center gap-3"):
                 ui.label("🏋️‍♂️").classes("text-3xl")
@@ -278,7 +259,6 @@ def client_page():
                 status_dot = ui.html('<span class="pulse-dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;animation:pulse 2s infinite"></span>', sanitize=False)
                 status_label = ui.label("Connected").classes("text-sm text-green-400 font-medium")
 
-        # ── Hero ──
         with ui.element("div").classes("hero-section"):
             ui.label("Build Your Workout").classes("text-3xl font-black mb-2")
             ui.label(
@@ -286,21 +266,18 @@ def client_page():
                 "We'll generate an optimized schedule based on real-time availability."
             ).classes("text-gray-400 text-base max-w-2xl")
 
-        # ── Name input ──
         with ui.card().classes("glass-card p-5"):
             ui.label("👤  Your Name").classes("text-sm font-semibold text-gray-300 mb-2")
             name_input = ui.input(
                 placeholder="Enter your name…"
             ).classes("w-full").props('dark dense outlined')
 
-        # ── Machine selection ──
         ui.label("📋  Select Your Machines").classes("text-lg font-bold mt-2")
         ui.label("Click the machines you want in your routine").classes("text-sm text-gray-500 -mt-4")
 
         machines_container = ui.row().classes("w-full gap-4 flex-wrap")
         schedule_result_container = ui.column().classes("w-full gap-4")
 
-        # ── Selected summary (declared early so refresh can access it) ──
         with ui.row().classes("w-full justify-center"):
             selected_summary_label = ui.label("No machines selected").classes("text-sm text-gray-500")
 
@@ -367,7 +344,6 @@ def client_page():
                                         sanitize=False,
                                     )
 
-        # ── Submit button ──
         def submit_routine():
             schedule_result_container.clear()
             user = name_input.value.strip()
@@ -397,17 +373,14 @@ def client_page():
                         ui.label(f"Schedule for {user}").classes("text-xl font-bold")
                         ui.label(f"{len(schedule)} exercises").classes("text-sm text-gray-400 ml-auto")
 
-                    # Timeline
                     total_min = 0
                     for i, item in enumerate(schedule):
                         with ui.row().classes("w-full items-start gap-4"):
-                            # Timeline connector
                             with ui.column().classes("items-center gap-0 pt-1"):
                                 ui.html('<div class="timeline-dot"></div>', sanitize=False)
                                 if i < len(schedule) - 1:
                                     ui.html('<div class="timeline-line"></div>', sanitize=False)
 
-                            # Card
                             with ui.element("div").classes("schedule-item flex-grow"):
                                 if "error" in item:
                                     with ui.row().classes("items-center gap-3"):
@@ -428,7 +401,6 @@ def client_page():
                                             ui.html(f'<span class="time-badge">{item["end"]}</span>', sanitize=False)
                                     total_min += item.get("duration", 0)
 
-                    # Summary footer
                     with ui.element("div").classes("mt-5 pt-4").style("border-top: 1px solid rgba(139, 92, 246, 0.15)"):
                         with ui.row().classes("justify-between items-center"):
                             ui.label(f"Total workout time: {total_min} minutes").classes("font-semibold text-gray-300")
@@ -444,14 +416,10 @@ def client_page():
                 on_click=submit_routine,
             ).props("no-caps size=lg color=deep-purple-8").classes("submit-btn")
 
-        # ── Load machines on page open ──
         load_machines()
 
 
 
-# ──────────────────────────────────────────────────────────────────────
-#   Main
-# ──────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     ui.run(
         title="GymFlow — Build Your Workout",
