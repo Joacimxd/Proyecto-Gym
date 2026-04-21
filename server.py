@@ -1,11 +1,3 @@
-"""
-server.py — Gym Routine Schedule Server
-
-• TCP socket server on port 5050  (unchanged protocol)
-• NiceGUI admin dashboard on port 8080
-• Machine data stored in SQLite via db.py
-"""
-
 import socket
 import threading
 import json
@@ -15,27 +7,22 @@ from collections import deque
 from nicegui import ui, app
 import db
 
-# ──────────────────────────────────────────────────────────────────────
-#   Shared state
-# ──────────────────────────────────────────────────────────────────────
 schedule_lock = threading.Lock()
-machine_availability = {}  # rebuilt from DB on each startup & refresh
+machine_availability = {}
 server_stats = {
     "active_connections": 0,
     "total_schedules": 0,
     "start_time": None,
 }
-log_entries = deque(maxlen=200)  # ring buffer for recent log lines
+log_entries = deque(maxlen=200)
 
 
 def _add_log(msg):
-    """Thread-safe log append."""
     ts = datetime.now().strftime("%H:%M:%S")
     log_entries.appendleft(f"[{ts}]  {msg}")
 
 
 def rebuild_availability():
-    """Re-read machines from DB and reset availability slots."""
     global machine_availability
     machines = db.get_machines_dict()
     with schedule_lock:
@@ -45,9 +32,6 @@ def rebuild_availability():
         }
 
 
-# ──────────────────────────────────────────────────────────────────────
-#   Scheduler  (same algorithm)
-# ──────────────────────────────────────────────────────────────────────
 def generate_schedule(user_name, routine):
     machines = db.get_machines_dict()
     with schedule_lock:
@@ -65,7 +49,6 @@ def generate_schedule(user_name, routine):
             machine_info = machines[requested_machine]
             avg_time = machine_info["average_time"]
 
-            # Ensure availability slot exists
             if requested_machine not in machine_availability:
                 machine_availability[requested_machine] = (
                     [datetime.now()] * machine_info["max_concurrent"]
@@ -91,9 +74,6 @@ def generate_schedule(user_name, routine):
         return user_schedule
 
 
-# ──────────────────────────────────────────────────────────────────────
-#   Socket server  (same protocol — now with get_machines action)
-# ──────────────────────────────────────────────────────────────────────
 def handle_client(conn, addr):
     server_stats["active_connections"] += 1
     _add_log(f"Client {addr} connected.")
@@ -105,7 +85,6 @@ def handle_client(conn, addr):
         request = json.loads(data)
         action = request.get("action")
 
-        # ── New: return machine list ──
         if action == "get_machines":
             machines = db.get_all_machines()
             response = json.dumps({"status": "success", "machines": machines})
@@ -113,7 +92,6 @@ def handle_client(conn, addr):
             _add_log(f"Sent machine list to {addr}")
             return
 
-        # ── Existing: generate schedule ──
         user_name = request.get("user", "Unknown Client")
         routine = request.get("routine", [])
 
@@ -159,11 +137,6 @@ def start_socket_server():
             break
 
 
-# ──────────────────────────────────────────────────────────────────────
-#   NiceGUI Admin Dashboard
-# ──────────────────────────────────────────────────────────────────────
-
-# ── Custom CSS injected into the page ──
 CUSTOM_CSS = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -296,7 +269,6 @@ body, .q-page, .nicegui-content {
 </style>
 """
 
-# Machine icons mapping
 MACHINE_ICONS = {
     "Squat Machine": "fitness_center",
     "Pendulum Squat Machine": "accessibility_new",
@@ -316,7 +288,6 @@ def admin_dashboard():
     ui.add_head_html(CUSTOM_CSS)
     ui.add_head_html('<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">')
 
-    # ── Top bar ──
     with ui.row().classes("w-full items-center justify-between px-6 py-4"):
         with ui.row().classes("items-center gap-3"):
             ui.icon("admin_panel_settings", size="sm").classes("text-violet-400")
@@ -325,7 +296,6 @@ def admin_dashboard():
             ui.html('<span class="pulse-dot"></span>', sanitize=False)
             ui.label("Server Online").classes("text-sm text-green-400 font-medium")
 
-    # ── Hero ──
     with ui.element("div").classes("hero-banner mx-6 mb-6"):
         with ui.row().classes("items-center justify-between"):
             with ui.column().classes("gap-1"):
@@ -333,14 +303,12 @@ def admin_dashboard():
                 ui.label("Manage gym machines, monitor connections, and view real-time logs.").classes("text-gray-400")
             ui.label("Socket :5050").classes("text-violet-400 font-mono text-sm bg-violet-950 px-3 py-1 rounded-lg border border-violet-800")
 
-    # ── Stats row ──
     with ui.row().classes("w-full px-6 gap-4 mb-6"):
         stat_machines = ui.label("0")
         stat_connections = ui.label("0")
         stat_schedules = ui.label("0")
         stat_uptime = ui.label("—")
 
-        # Rebuild with proper layout
         stat_machines.delete()
         stat_connections.delete()
         stat_schedules.delete()
@@ -361,7 +329,6 @@ def admin_dashboard():
             stat_uptime_label = ui.label("—").classes("stat-number")
             ui.label("Uptime (min)").classes("stat-label mt-1")
 
-    # ── Machine management ──
     with ui.card().classes("glass-card mx-6 mb-6 p-6"):
         with ui.row().classes("w-full items-center justify-between mb-4"):
             ui.label("🎛️  Machine Management").classes("text-lg font-bold")
@@ -400,7 +367,6 @@ def admin_dashboard():
                 "color=deep-purple-8 no-caps"
             ).classes("px-5")
 
-        # Machine table
         machine_table_container = ui.column().classes("w-full")
 
     def refresh_table():
@@ -485,12 +451,9 @@ def admin_dashboard():
             table.on("edit", handle_edit)
             table.on("delete", handle_delete)
 
-    # ── Live logs ──
     with ui.card().classes("glass-card mx-6 mb-6 p-6"):
         ui.label("📜  Live Server Log").classes("text-lg font-bold mb-3")
         log_display = ui.html("", sanitize=False).classes("log-container w-full")
-
-    # ── Timer to refresh stats & logs ──
     def tick():
         stat_connections_label.set_text(str(server_stats["active_connections"]))
         stat_schedules_label.set_text(str(server_stats["total_schedules"]))
@@ -506,25 +469,16 @@ def admin_dashboard():
 
     ui.timer(1.5, tick)
 
-    # Initial table load
     refresh_table()
 
-
-# ──────────────────────────────────────────────────────────────────────
-#   Main
-# ──────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    # Initialize database
     db.init_db()
     rebuild_availability()
-
-    # Start socket server in background thread
     socket_thread = threading.Thread(target=start_socket_server, daemon=True)
     socket_thread.start()
 
     _add_log("🏁 Server starting up…")
 
-    # Start NiceGUI (blocking — serves admin dashboard)
     ui.run(
         title="Gym Admin Dashboard",
         port=8082,

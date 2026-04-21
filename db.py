@@ -5,18 +5,13 @@ DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gym.db")
 
 
 def _get_connection():
-    """Return a new connection to the SQLite database."""
     conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row  # access columns by name
-    conn.execute("PRAGMA journal_mode=WAL")  # better concurrency
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA journal_mode=WAL")
     return conn
 
 
 def init_db():
-    """
-    Create the machines table if it doesn't exist and seed it with
-    default machines when the table is empty.
-    """
     conn = _get_connection()
     try:
         conn.execute("""
@@ -29,14 +24,12 @@ def init_db():
         """)
         conn.commit()
 
-        # Seed only if the table is empty
         count = conn.execute("SELECT COUNT(*) FROM machines").fetchone()[0]
     finally:
         conn.close()
 
 
 def get_all_machines():
-    """Return a list of dicts for every machine in the database."""
     conn = _get_connection()
     try:
         rows = conn.execute(
@@ -48,7 +41,6 @@ def get_all_machines():
 
 
 def get_machine_by_name(name):
-    """Return a single machine dict by name, or None."""
     conn = _get_connection()
     try:
         row = conn.execute(
@@ -61,7 +53,6 @@ def get_machine_by_name(name):
 
 
 def get_machine_by_id(machine_id):
-    """Return a single machine dict by id, or None."""
     conn = _get_connection()
     try:
         row = conn.execute(
@@ -74,7 +65,6 @@ def get_machine_by_id(machine_id):
 
 
 def add_machine(name, average_time=15, max_concurrent=1):
-    """Insert a new machine. Returns the new row id or None on conflict."""
     conn = _get_connection()
     try:
         cursor = conn.execute(
@@ -90,7 +80,6 @@ def add_machine(name, average_time=15, max_concurrent=1):
 
 
 def update_machine(machine_id, name=None, average_time=None, max_concurrent=None):
-    """Update fields of an existing machine. Only non-None values are changed."""
     fields = []
     values = []
     if name is not None:
@@ -122,7 +111,6 @@ def update_machine(machine_id, name=None, average_time=None, max_concurrent=None
 
 
 def delete_machine(machine_id):
-    """Delete a machine by id. Returns True if a row was deleted."""
     conn = _get_connection()
     try:
         cursor = conn.execute("DELETE FROM machines WHERE id = ?", (machine_id,))
@@ -133,10 +121,6 @@ def delete_machine(machine_id):
 
 
 def get_machines_dict():
-    """
-    Return a dict in the legacy format used by the scheduler:
-    { "Machine Name": {"average_time": int, "max_concurrent": int}, ... }
-    """
     machines = get_all_machines()
     return {
         m["name"]: {
