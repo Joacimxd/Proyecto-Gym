@@ -56,8 +56,7 @@ The system is composed of **four independent agents** communicating over TCP soc
 - Multi-camera grid view with live bounding box annotations
 - Per-machine status badges (IN USE / IDLE) with elapsed time
 
-<!-- Screenshot: Camera server grid view with detections -->
-<!-- ![YOLO Detection Grid](assets/detection_grid.png) -->
+![YOLO Detection Grid](assets/detection_grid.jpeg)
 
 ### Smart Session Tracking
 - **Debounce logic** (3s) absorbs brief YOLO misses to avoid false session endings
@@ -70,8 +69,7 @@ The system is composed of **four independent agents** communicating over TCP soc
 - Real-time stats: active connections, schedules generated, uptime
 - Live server log with monospaced output
 
-<!-- Screenshot: Admin dashboard -->
-<!-- ![Admin Dashboard](assets/admin_dashboard.png) -->
+![Admin Dashboard](assets/admin_dashboard.png)
 
 ### Client Workout Builder
 - Premium dark-themed web app on port `8081`
@@ -79,11 +77,9 @@ The system is composed of **four independent agents** communicating over TCP soc
 - Select machines and generate an optimized schedule
 - Timeline visualization of the workout plan
 
-<!-- Screenshot: Client app — machine selection -->
-<!-- ![Client App - Selection](assets/client_selection.png) -->
+![Client App - Selection](assets/client_selection.png)
 
-<!-- Screenshot: Client app — generated schedule -->
-<!-- ![Client App - Schedule](assets/client_schedule.png) -->
+![Client App - Schedule](assets/client_schedule.png)
 
 ### Camera Client
 - Streams webcam or pre-recorded video to the camera server
@@ -91,8 +87,7 @@ The system is composed of **four independent agents** communicating over TCP soc
 - Sends a machine name header so the server knows which machine each feed represents
 - Optional local preview window (can be disabled with `--no-preview`)
 
-<!-- Screenshot: Camera client preview window -->
-<!-- ![Camera Client](assets/camera_client.png) -->
+![Camera Client](assets/camera_client.png)
 
 ---
 
@@ -181,9 +176,6 @@ python server.py
 
 Open the admin dashboard at: [http://localhost:8082](http://localhost:8082)
 
-<!-- Screenshot: Terminal output of server.py starting -->
-<!-- ![Server Startup](assets/server_startup.png) -->
-
 ### 2. Start the Camera Server
 
 Launches the YOLO detection server (port `6060`) that receives camera feeds.
@@ -193,9 +185,6 @@ python camera_server.py
 ```
 
 This will open a grid visualization window showing all connected camera feeds with YOLO detections.
-
-<!-- Screenshot: Camera server terminal + detection window -->
-<!-- ![Camera Server](assets/camera_server_running.png) -->
 
 ### 3. Connect Camera Clients
 
@@ -237,11 +226,6 @@ python client.py
 
 Open the client at: [http://localhost:8081](http://localhost:8081)
 
-<!-- Screenshot: Client app running in browser -->
-<!-- ![Client Running](assets/client_running.png) -->
-
----
-
 ## YOLO Model Training
 
 The detection model was trained using **YOLOv11** (Ultralytics) with two classes:
@@ -253,11 +237,8 @@ The detection model was trained using **YOLOv11** (Ultralytics) with two classes
 
 The model was fine-tuned on custom gym footage and exported to **TorchScript** format for faster inference.
 
-<!-- Screenshot: Training metrics / confusion matrix -->
-<!-- ![Training Results](assets/training_results.png) -->
-
-<!-- Screenshot: Example detections on test images -->
-<!-- ![Detection Examples](assets/detection_examples.png) -->
+![Training Results](assets/training_results.png)
+![Detection Examples](assets/val_batch0_pred.jpg)
 
 ---
 
@@ -292,11 +273,6 @@ Extracted frames were then labeled using [Roboflow](https://roboflow.com/) or [C
 ---
 
 ## Demo
-
-<!-- 
-  Replace the placeholders below with your actual demo media.
-  You can use GIFs, screenshots, or link to a YouTube video.
--->
 
 ### Full System Demo
 
